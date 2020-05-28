@@ -639,7 +639,7 @@ def demotest(request):
     sql = "select post_id , post_date, post_num , post_longitude , post_latitude " \
           "from  post_check_in  where  post_num in( select max(post_num) from post_check_in where post_id = " + postId +")"
     print(sql)
-
+    return  HttpResponse("okkokokoko"+sql)
     #courseId = request.GET.get('courseId')
 
 
