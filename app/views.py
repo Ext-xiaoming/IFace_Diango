@@ -427,6 +427,8 @@ def stuKaoQinList(request):
     post_id = []
     post_num = []
     post_date = []
+    post_type = []
+
     IsCheck = []
 
     # 查询course_id 对应的所有签到记录 按照post_num排序
@@ -435,6 +437,7 @@ def stuKaoQinList(request):
         post_id.append(r.post_id)
         post_num.append(r.post_num)
         post_date.append(r.post_date)
+        post_type.append(r.post_type)
 
     # 根据post_id 判断是否签到了
     for i in post_id:
@@ -448,7 +451,7 @@ def stuKaoQinList(request):
     data = []
     j = 0
     while j < len_c:
-        data.append({"post_num": post_num[j], "post_date": post_date[j], "IsCheck": IsCheck[j]})
+        data.append({"post_num": post_num[j], "post_date": post_date[j], "IsCheck": IsCheck[j],"post_type":post_type[j]})
         j += 1
 
     return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
@@ -461,6 +464,7 @@ def teaCourseFabu(request):
     post_num = []
     post_date = []
     num = []
+    post_type = []
 
     # 查询course_id 对应的所有签到记录 按照post_num排序
     res0 = models.PostCheckIn.objects.filter(course_id=courseId).order_by("-post_num")
@@ -468,6 +472,7 @@ def teaCourseFabu(request):
         post_id.append(r.post_id)
         post_num.append(r.post_num)
         post_date.append(r.post_date)
+        post_type.append(r.post_type)
 
     # 根据post_id 判断是否签到了
     for i in post_id:
@@ -482,7 +487,7 @@ def teaCourseFabu(request):
     data = []
     j = 0
     while j < len_c:
-        data.append({"post_num": post_num[j], "post_date": post_date[j], "num": num[j], "post_id": post_id[j]})
+        data.append({"post_num": post_num[j], "post_date": post_date[j], "num": num[j], "post_id": post_id[j],"post_type":post_type[j]})
         j += 1
 
     return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
