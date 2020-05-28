@@ -123,14 +123,25 @@ def postIfaceCheck(request):
         opreateAdd.save()
     #返回的结果集
 
-
     return HttpResponse("ok")
 
 #学生端上传个人照片
 def savePictures(request):
-    fpath = request.POST.get('file_save_path_InServer')  # 至指定到文件夹
-    fname = request.POST.get('file_name_InSFolder')  # 文件在指定文件夹中的名字
+    #fpath = request.POST.get('file_save_path_InServer')  # 至指定到文件夹
+    #fname = request.POST.get('file_name_InSFolder')  # 文件在指定文件夹中的名字
     studentId = request.POST.get('studentId')  #识别时哪一个学生
+
+    # 查询获取学生的index
+    studentIndex = -1
+    res = models.Student.objects.filter(student_id=studentId)
+    for s in res:
+        studentIndex = s.stu_index
+
+    fname = str(studentIndex) + ".jpg"
+    print(studentIndex)
+    print(fname)
+
+
      # 保存照片到指定文件夹下
     print(11111)
     try:
@@ -146,7 +157,7 @@ def savePictures(request):
         #方案二
         #destination = open(os.path.join("E:\\upload", myFile.name), 'wb+')  # 打开特定的文件进行二进制的写操作
 
-        destination = open(os.path.join(fpath, fname), 'wb+')  # 打开特定的文件进行二进制的写操作
+        destination = open(os.path.join("/data/wwwroot/IFace/student", fname), 'wb+')  # 打开特定的文件进行二进制的写操作
         for chunk in image.chunks():  # 分块写入文件
             destination.write(chunk)
         destination.close()
@@ -154,13 +165,7 @@ def savePictures(request):
         data = {"RESULT": -1}
         return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
 
-    #查询获取学生的index
-    studentIndex=-1
-    res = models.Student.objects.filter(student_id=studentId)
-    for s in res:
-        studentIndex=s.student_id
 
-    print(studentIndex)
     #上传成功后进行 班级树的重新构建
     #TODO addStudent(fpath, fname, studentIndex)
 
@@ -618,7 +623,7 @@ def teaPostNumCheck(request):
         for r in res0:
             teacher_id = r.teacher_id
         opreateAdd = models.PostCheckIn(post_id=post_id, post_date=post_date, course_id=course_id, post_num=post_num,
-                                    teacher_id=teacher_id, post_longitude=post_longitude, post_latitude=post_latitude)
+                                    teacher_id=teacher_id, post_type=0, post_longitude=post_longitude, post_latitude=post_latitude)
         opreateAdd.save()
         print("over!")
         data = {"RESULT": 1}
@@ -627,49 +632,104 @@ def teaPostNumCheck(request):
     data = {"RESULT": -1}
     return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
 
+
+
 def demotest(request):
     postId="123"
     sql = "select post_id , post_date, post_num , post_longitude , post_latitude " \
           "from  post_check_in  where  post_num in( select max(post_num) from post_check_in where post_id = " + postId +")"
     print(sql)
 
-    fpath = request.POST.get('file_save_path_InServer')  # 至指定到文件夹
-    fname = request.POST.get('file_name_InSFolder')  # 文件在指定文件夹中的名字
-    studentId = request.POST.get('studentId')  # 识别时哪一个学生
-    # 保存照片到指定文件夹下
-    try:
-        image = request.FILES.get('file')
+    #courseId = request.GET.get('courseId')
 
-        # 方案一
-        # if image.size>1000 and image.size<20480000:
-        #     path=default_storage.save(file_save_path_InServer+image.name,ContentFile(image.read()))
-        #     destination =os.path.join(settings.MEDIA_ROOT,path)
-        # else:
-        #     print("no")
 
-        # 方案二
-        # destination = open(os.path.join("E:\\upload", myFile.name), 'wb+')  # 打开特定的文件进行二进制的写操作
 
-        destination = open(os.path.join(fpath, fname), 'wb+')  # 打开特定的文件进行二进制的写操作
-        for chunk in image.chunks():  # 分块写入文件
-            destination.write(chunk)
-        destination.close()
-    except:
-        data = {"RESULT": -1,"sql":sql}
-        return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
 
-    # 查询获取学生的index
-    studentIndex = -1
-    res = models.Student.objects.filter(student_id=studentId)
-    for s in res:
-        studentIndex = s.student_id
+    # studentId = request.GET.get('studentId')  # 识别时哪一个学生
+    #
+    # # 查询获取学生的index
+    # studentIndex = -1
+    # res = models.Student.objects.filter(student_id=studentId)
+    # for s in res:
+    #     studentIndex = s.stu_index
+    #
+    # fname =str(studentIndex)  + ".jpg"
+    # print(studentIndex)
+    # print(fname)
+    #
+    # data = {"RESULT": -1}
+    # return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
+    # post_id = []
+    # post_num = []
+    # post_date = []
+    # post_type = []
+    #
+    # IsCheck = []
+    #
+    # # 查询course_id 对应的所有签到记录 按照post_num排序
+    # res0 = models.PostCheckIn.objects.filter(course_id=courseId).order_by("-post_num")
+    # for r in res0:
+    #     post_id.append(r.post_id)
+    #     post_num.append(r.post_num)
+    #     post_date.append(r.post_date)
+    #     post_type.append(r.post_type)
+    #
+    # # 根据post_id 判断是否签到了
+    # for i in post_id:
+    #     res1 = models.SignIn.objects.filter(post_id=i)
+    #     if res1.exists():
+    #         IsCheck.append("出勤")
+    #     else:
+    #         IsCheck.append("缺勤")
+    #
+    # len_c = len(post_id)
+    # data = []
+    # j = 0
+    # while j < len_c:
+    #     data.append(
+    #         {"post_num": post_num[j], "post_date": post_date[j], "IsCheck": IsCheck[j], "post_type": post_type[j]})
+    #     j += 1
+    #
+    # return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
 
-    print(studentIndex)
-    # 上传成功后进行 班级树的重新构建
-    # TODO addStudent(fpath, fname, studentIndex)
 
-    data = {"RESULT": 0, "sql": sql}
-    return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
+    # fpath = request.POST.get('file_save_path_InServer')  # 至指定到文件夹
+    # fname = request.POST.get('file_name_InSFolder')  # 文件在指定文件夹中的名字
+    # studentId = request.POST.get('studentId')  # 识别时哪一个学生
+    # # 保存照片到指定文件夹下
+    # try:
+    #     image = request.FILES.get('file')
+    #
+    #     # 方案一
+    #     # if image.size>1000 and image.size<20480000:
+    #     #     path=default_storage.save(file_save_path_InServer+image.name,ContentFile(image.read()))
+    #     #     destination =os.path.join(settings.MEDIA_ROOT,path)
+    #     # else:
+    #     #     print("no")
+    #
+    #     # 方案二
+    #     # destination = open(os.path.join("E:\\upload", myFile.name), 'wb+')  # 打开特定的文件进行二进制的写操作
+    #
+    #     destination = open(os.path.join(fpath, fname), 'wb+')  # 打开特定的文件进行二进制的写操作
+    #     for chunk in image.chunks():  # 分块写入文件
+    #         destination.write(chunk)
+    #     destination.close()
+    # except:
+    #     data = {"RESULT": -1,"sql":sql}
+    #     return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
+    #
+    # # 查询获取学生的index
+    # studentIndex = -1
+    # res = models.Student.objects.filter(student_id=studentId)
+    # for s in res:
+    #     studentIndex = s.student_id
+    #
+    # print(studentIndex)
+    # # 上传成功后进行 班级树的重新构建
+    # # TODO addStudent(fpath, fname, studentIndex)
+    #
+    # data = {"RESULT": 0, "sql": sql}
+    # return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
 
 
 
