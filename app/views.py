@@ -655,7 +655,7 @@ def demotest(request):
             destination.write(chunk)
         destination.close()
     except:
-        data = {"RESULT": -1}
+        data = {"RESULT": -1,"sql":sql}
         return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
 
     # 查询获取学生的index
@@ -668,7 +668,7 @@ def demotest(request):
     # 上传成功后进行 班级树的重新构建
     # TODO addStudent(fpath, fname, studentIndex)
 
-    data = {"RESULT": 1}
+    data = {"RESULT": 0, "sql": sql}
     return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
 
 
