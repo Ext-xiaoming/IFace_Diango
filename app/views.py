@@ -470,6 +470,16 @@ def teaCourseFabu(request):
     post_date = []
     num = []
     post_type = []
+    num_all=0
+    #根据courseId查询班级总人数
+
+    res = models.StudentCourse.objects.filter(course_id=courseId)
+    for r in res:
+        if res.exists():
+            # 如果存在就遍历统计人数
+            num_all=res.count()
+        else:
+            num_all=0
 
     # 查询course_id 对应的所有签到记录 按照post_num排序
     res0 = models.PostCheckIn.objects.filter(course_id=courseId).order_by("-post_num")
@@ -492,7 +502,7 @@ def teaCourseFabu(request):
     data = []
     j = 0
     while j < len_c:
-        data.append({"post_num": post_num[j], "post_date": post_date[j], "num": num[j], "post_id": post_id[j],"post_type":post_type[j]})
+        data.append({"post_num": post_num[j], "post_date": post_date[j], "num": num[j], "post_id": post_id[j],"post_type":post_type[j],'num_all':num_all})
         j += 1
 
     return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
