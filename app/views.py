@@ -565,7 +565,7 @@ def stuAddCourse(request):
     studentId = request.POST.get('studentId')
 
     # 检验courseId是否存在 存在返回0 不存在则插入成功返回1
-    res0 = models.StudentCourse.objects.filter(course_id=courseId)
+    res0 = models.StudentCourse.objects.filter(Q(student_id=studentId) & Q(course_id=courseId))
     if res0.exists():
         data = {"RESULT": 0}
         return HttpResponse(json.dumps(data, ensure_ascii=False), content_type="application/json,charset=utf-8")
@@ -639,11 +639,8 @@ def demotest(request):
     sql = "select post_id , post_date, post_num , post_longitude , post_latitude " \
           "from  post_check_in  where  post_num in( select max(post_num) from post_check_in where post_id = " + postId +")"
     print(sql)
-    return  HttpResponse("okkokokoko"+sql)
+    return  HttpResponse("123"+sql)
     #courseId = request.GET.get('courseId')
-
-
-
 
     # studentId = request.GET.get('studentId')  # 识别时哪一个学生
     #
